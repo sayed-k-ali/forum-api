@@ -48,11 +48,11 @@ jobs:
         npm run migrate up
         npm run test
       env:
-        PGHOST_TEST: ${{ secrets.POSTGRES_HOST }}
-        PGUSER_TEST: ${{ secrets.POSTGRES_USER }}
-        PGDATABASE_TEST: ${{ secrets.POSTGRES_DBNAME }}
-        PGPASSWORD_TEST: ${{ secrets.POSTGRES_PASSWORD }}
-        PGPORT_TEST: ${{ secrets.POSTGRES_HOST }}
+        PGHOST: ${{ secrets.POSTGRES_HOST }}
+        PGUSER: ${{ secrets.POSTGRES_USER }}
+        PGDATABASE: ${{ secrets.POSTGRES_DBNAME }}
+        PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        PGPORT: ${{ secrets.POSTGRES_PORT }}
         ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
         REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}
 
