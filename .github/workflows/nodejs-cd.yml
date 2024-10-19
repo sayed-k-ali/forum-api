@@ -28,6 +28,17 @@ jobs:
       - name: Install nodejs packages
         run: npm install --silent
 
+      - name: Prepare Env
+        run: |
+          cat <<EOF > .env
+            PGHOST=${{ secrets.POSTGRES_HOST }}
+            PGUSER=${{ secrets.POSTGRES_USER }}
+            PGDATABASE=${{ secrets.POSTGRES_DBNAME }}
+            PGPASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            PGPORT=${{ secrets.POSTGRES_PORT }}
+            ACCESS_TOKEN_KEY=${{ secrets.ACCESS_TOKEN_KEY }}
+            REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}
+          EOF
       - name: Upload to VM
         uses: appleboy/scp-action@v0.1.4
         with:
