@@ -1,0 +1,82 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Continous Integration
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-and-test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.17.x]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DBNAME }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout current branch
+      uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install nodejs packages
+      run: npm install --silent
+      env:
+        CI: true
+
+    - name: Run Unit test and integration test
+      run: |
+        npm run migrate up
+        npm run test
+      env:
+        PGHOST: ${{ secrets.POSTGRES_HOST }}
+        PGUSER: ${{ secrets.POSTGRES_USER }}
+        PGDATABASE: ${{ secrets.POSTGRES_DBNAME }}
+        PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        PGPORT: ${{ secrets.POSTGRES_PORT }}
+        ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
+        REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}
+
+  # this is the deployment sample for VPS or compute engine instance
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Upload to VM
+  #       uses: appleboy/scp-action@v0.1.4
+  #       with:
+  #         host: ${{ secrets.SSHHOST }}
+  #         username: ${{ secrets.SSHUSER }}
+  #         key: ${{ secrets.SSHKEY }}
+  #         port: ${{ secrets.SSHPORT }}
+  #         source: '.'
+  #         target: ./latihan-cicd/
+  #     - name: restart pm2 services
+  #       uses: appleboy/ssh-action@v1.0.0
+  #       with:
+  #         host: ${{ secrets.SSHHOST }}
+  #         username: ${{ secrets.SSHUSER }}
+  #         key: ${{ secrets.SSHKEY }}
+  #         port: ${{ secrets.SSHPORT }}
+  #         script: |
+  #           pm2 restart all
